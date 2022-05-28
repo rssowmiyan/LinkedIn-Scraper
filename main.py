@@ -9,23 +9,28 @@ import re
 from selenium.webdriver.common.by import By
 from pprint import pprint
 # ************************************************************
+# Use sessions to open firefox latest update
 profile_path = r'C:\Users\Administrator\AppData\Roaming\Mozilla\Firefox\Profiles\y1uqp5mi.default'
 options=Options()
 options.set_preference('profile', profile_path)
 service = Service(r'C:\GeckoDriver\geckodriver.exe')
 driver = Firefox(service=service, options=options)
+password = os.environ.get('password')
 driver.get('https://www.linkedin.com/login')
 driver.find_element_by_id('username').send_keys('sowmiyan00@gmail.com') 
-driver.find_element_by_id('password').send_keys('ilovecs7')
+driver.find_element_by_id('password').send_keys(password)
 driver.find_element(by=By.XPATH,value="//*[@type='submit']").click()
 
+# Go to college people section
 search_url='https://www.linkedin.com/school/thiagarajar-college-of-engineering/people/'
 driver.get(search_url)
 driver.maximize_window()
 data=[]
 
+# Giving time for machine to scroll through the content
 SCROLL_PAUSE_TIME = 20
 last_height = driver.execute_script("return document.body.scrollHeight")
+
 # Counter variable to keep track of full page scrolls
 cnt=0
 while True:
@@ -39,9 +44,11 @@ while True:
     if(cnt==2):
         break
 
+# lxml -> parser used here
 search = BeautifulSoup(driver.page_source,'lxml')
 peoples_div_section = search.findAll('div', attrs ={'class':'org-people-profile-card__profile-info'})
 peoples_div_section = str(peoples_div_section)
+# regex to filter the people <a href="value we need">
 peoples = re.findall(r'href=[\'"]?([^\'" >]+)', peoples_div_section)
 pprint(peoples)
 count = 0
@@ -55,7 +62,7 @@ for people in peoples:
 
     # title
     try:
-        title = str(page.find("li", attrs = {'class':'inline t-24 t-black t-normal break-words'}).text).strip()
+        title = str(page.find("h1", attrs = {'class':'text-heading-xlarge inline t-24 v-align-middle break-words'}).text).strip()
         
     except:
         title = 'None'
@@ -338,9 +345,3 @@ for i in range(1,len(data)+1):
 workbook.close()
 
 
-
-'''
-  driver.find_element_by_id('username').send_keys('8682951972') 
-driver.find_element_by_id('password').send_keys('Branding2018')
-
-'''
